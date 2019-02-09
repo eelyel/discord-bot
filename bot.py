@@ -45,10 +45,12 @@ def parse_command(content: str) -> (str, Set[str]):
 
     command = content.split()[0][1:]
 
-    if not any([command.startswith(cmd) for cmd in COMMANDS]):
+    cmds = list(filter(lambda c: command.startswith(c), COMMANDS))
+
+    if len(cmds) == 0:
         return None, None
 
-    cmd = list(filter(lambda c: command.startswith(c), COMMANDS))[0]
+    cmd = cmds[0]
     args = set(command[len(cmd):])
     return cmd, args
 
