@@ -3,15 +3,16 @@ import discord
 import os
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
+COMMAND_PREFIXES = ["!", "$", "`"]
 
 client = discord.Client()
 
 @client.event
 async def on_ready():
-    print(f"Logged in as: {client.user.name} ({client.user.id})")
+    logger.debug(f"Logged in as: {client.user.name} ({client.user.id})")
 
 @client.event
-async def on_message():
+async def on_message(message):
     pass
 
 client.run(BOT_TOKEN)
