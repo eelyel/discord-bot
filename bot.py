@@ -19,6 +19,17 @@ async def on_message(message):
 
     command, args = parse_command(content)
 
+@client.event
+async def on_reaction_add(reaction, user):
+    if reaction.emoji == '🎲':
+        message = reaction.message
+        message_info = f"{message.content} by {user.name} ({user.id})"
+        logger.info(f"Attempting to delete message {message_info}")
+        try:
+            await client.delete_message(message)
+        except discord.HTTPException:
+            logger.info(f"Failed to delete message {message_info}")
+
 def parse_command(content: str) -> (str, Set[str]):
     """
     Return a message content's command and arguments.
