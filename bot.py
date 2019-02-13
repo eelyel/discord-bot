@@ -5,7 +5,7 @@ from typing import Set
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 COMMAND_PREFIXES = ["!", "$", "`"]
-COMMANDS = ['help', 'roll', 'test', 'scp', 'md', 'nu', 'mu', 'mal', 'wiki', 'xkcd']
+ALL_COMMANDS = ['help', 'roll', 'test', 'scp', 'md', 'nu', 'mu', 'mal', 'wiki', 'xkcd']
 
 client = discord.Client()
 
@@ -43,16 +43,18 @@ def parse_command(content: str) -> (str, Set[str]):
     if content[0] not in COMMAND_PREFIXES:
         return None, None
 
-    command = content.split()[0][1:]
+    # !wiki5abc oranges -> wiki5abc
+    unparsed_command = content.split()[0][1:]
 
-    cmds = list(filter(lambda c: command.startswith(c), COMMANDS))
+    commands = list(filter(lambda COMMAND: unparsed_command.startswith(COMMAND), ALL_COMMANDS))
 
-    if len(cmds) == 0:
+    if len(commands) == 0:
         return None, None
 
-    cmd = cmds[0]
-    args = set(command[len(cmd):])
-    return cmd, args
+    # Take the first command regardless of multiple matches
+    command = commands[0]
+    args = set(unparsed_command[len(command):])
+    return command, args
 
 
 client.run(BOT_TOKEN)
