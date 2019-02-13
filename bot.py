@@ -40,7 +40,7 @@ def parse_command(content: str) -> (str, Set[str]):
     >>> parse_command('`wiki12nil')
     ('wiki', {'1', '2', 'n', 'i', 'l'})
     """
-    if content[0] not in COMMAND_PREFIXES:
+    if len(content) == 0 or content[0] not in COMMAND_PREFIXES:
         return None, None
 
     # !wiki5abc oranges -> wiki5abc
