@@ -2,10 +2,10 @@ from log import logger
 import discord
 import os
 from typing import Set
+from commands import ALL_COMMANDS
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 COMMAND_PREFIXES = ["!", "$", "`"]
-ALL_COMMANDS = ['help', 'roll', 'test', 'scp', 'md', 'nu', 'mu', 'mal', 'wiki', 'xkcd']
 
 client = discord.Client()
 
@@ -46,7 +46,7 @@ def parse_command(content: str) -> (str, Set[str]):
     # !wiki5abc oranges -> wiki5abc
     unparsed_command = content.split()[0][1:]
 
-    commands = list(filter(lambda COMMAND: unparsed_command.startswith(COMMAND), ALL_COMMANDS))
+    commands = list(filter(lambda COMMAND: unparsed_command.startswith(COMMAND), ALL_COMMANDS.keys()))
 
     if len(commands) == 0:
         return None, None
