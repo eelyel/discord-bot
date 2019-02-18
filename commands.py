@@ -1,12 +1,17 @@
+"""Core logic implementation of commands."""
+
+from typing import Set, List
+from random import randint
+import discord
 from log import logger
 from search import Search
-from typing import Set, List
 
 
 ALL_COMMANDS = {
-    'help': lambda *_: show_help,
-    'ping': lambda args, inputs: ping,
-    'roll': lambda args, inputs: roll,
+    'help': lambda *_: show_help(),
+    # pylint: disable=unnecessary-lambda
+    'ping': lambda args, inputs: ping(args, inputs),
+    'roll': lambda _, inputs: roll(inputs),
     'scp': lambda args, inputs: search(args, inputs, Search.SCP),
     'mal': lambda args, inputs: search(args, inputs, Search.MAL),
     'md': lambda args, inputs: search(args, inputs, Search.MD),
@@ -17,6 +22,9 @@ ALL_COMMANDS = {
 }
 
 def show_help() -> str:
+    """
+    Return a help string.
+    """
     return discord.Embed(
         description="""Precede the following with any of `, !, $
                     **Misc**
@@ -30,11 +38,38 @@ def show_help() -> str:
                     <mal|md|mu|nu|wiki|xkcd>[#] <search query>"""
         )
 
-async def ping(args: Set[str], inputs: List[str]) -> str:
+def ping(args: Set[str], inputs: List[str]) -> str:
+    """
+    Return a formatted string of IDs to be pinged.
+    """
+    logger.info("Pinging - args: %s | inputs: %s", args, inputs)
+    return ''
+
+def roll(inputs: List[str]) -> str:
+    """
+    Return a randomized number or selection, based on the format of input.
+
+    >>> roll(['Alice', 'Bob', 'Charlie'])
+    'Bob'
+
+    >>> roll(['6'])
+    '3'
+
+    >>> roll(['2d20'])
+    '(15) + (3) = 18'
+
+    >>> roll([''])
+    ''
+
+    >>> roll(['abc'])
+    'abc'
+    """
+
     pass
 
-async def roll(args: Set[str], inputs: List[str]) -> str:
-    pass
-
-async def search(args: Set[str], inputs: List[str], search_type: Search) -> str:
-    pass
+def search(args: Set[str], inputs: List[str], search_type: Search) -> str:
+    """
+    Return a formatted string from the given query in inputs and the search type.
+    """
+    logger.info("Searching - args: %s | inputs: %s | type: %s", args, inputs, search_type)
+    return ''
