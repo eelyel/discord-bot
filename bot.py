@@ -31,7 +31,11 @@ async def on_message(message):
     if command is None:
         return
 
-    client.send_message(channel, ALL_COMMANDS[command](args, inputs))
+    msg = ALL_COMMANDS[command](args, inputs)
+    if isinstance(msg, discord.Embed):
+        await client.send_message(channel, embed=msg)
+    elif msg:
+        await client.send_message(channel, msg)
 
 
 @client.event
