@@ -15,7 +15,7 @@ CRITICAL   A serious error, indicating that the program itself may be unable to 
 LOG_FILE = 'discord.log'
 
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
