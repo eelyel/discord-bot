@@ -16,18 +16,19 @@ ALL_COMMANDS = {
     'xkcd': lambda args, inputs: search(args, inputs, Search.XKCD),
 }
 
-async def show_help() -> str:
-    return """Precede the following with any of `, !, $
-           **Misc**
-           help
-           ping
-           roll <Number|NdM|abc>
-           test
+def show_help() -> str:
+    return discord.Embed(
+        description="""Precede the following with any of `, !, $
+                    **Misc**
+                    help
+                    ping
+                    roll <Number|NdM|abc>
 
 
-           **Searches**
-           scp[#]  <number|search query>
-           <mal|md|mu|nu|wiki|xkcd>[#] <search query>"""
+                    **Searches**
+                    scp[#]  <number|search query>
+                    <mal|md|mu|nu|wiki|xkcd>[#] <search query>"""
+        )
 
 async def ping(args: Set[str], inputs: List[str]) -> str:
     pass
