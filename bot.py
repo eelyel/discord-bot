@@ -41,6 +41,7 @@ async def on_reaction_add(reaction, user):
     Will not be called if the message isn't cached:
     that is, if the bot wasn't running when the message was sent
     """
+    # Allow deletions of bot messages via reacting with 'die'
     if reaction.emoji == '🎲':
         message = reaction.message
         message_info = f"{message.content} by {user.name} ({user.id})"
@@ -52,19 +53,21 @@ async def on_reaction_add(reaction, user):
 
 def parse_command(content: str) -> (str, Set[str], List[str]):
     """
-    Return a message content's command and arguments.
+    Return a message content's command, arguments, and inputs.
 
-    >>> parse_command('!wiki')
-    ('wiki', set())
+    >>> parse_command("!wiki")
+    ('wiki', set(), [])
 
-    >>> parse_command('`wiki12nil')
-    ('wiki', {'1', '2', 'n', 'i', 'l'})
+    >>> parse_command("`wiki12nil hello and bye")
+    ('wiki', {'1', '2', 'n', 'i', 'l'}, ['hello', 'and', 'bye'])
     """
     if not content or content[0] not in COMMAND_PREFIXES:
         return None, None, None
 
+    split_content = content.split()
+
     # !wiki5abc oranges -> wiki5abc
-    unparsed_command = content.split()[0][1:]
+    unparsed_command = split_content[0][1:]
 
     commands = list(filter(unparsed_command.startswith, ALL_COMMANDS.keys()))
 
@@ -74,7 +77,7 @@ def parse_command(content: str) -> (str, Set[str], List[str]):
     # Take the first command regardless of multiple matches
     command = commands[0]
     args = set(unparsed_command[len(command):])
-    return command, args, content[1:] if len(content) > 1 else []
+    return command, args, split_content[1:]
 
 
 client.run(BOT_TOKEN)
