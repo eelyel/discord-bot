@@ -64,8 +64,47 @@ def roll(inputs: List[str]) -> str:
     >>> roll(['abc'])
     'abc'
     """
+    logger.info("Rolling - inputs: %s", inputs)
+    if not inputs:
+        return ''
 
-    pass
+    if len(inputs) == 1:
+        inp = inputs[0]
+        # !roll 10
+        if inp.isdigit() and int(inp) > 0:
+            return str(randint(1, int(inp)))
+
+        try:
+            # Fails when there is no 'd': !roll abc
+            (num, side) = inp.split('d')[:2]
+            # Both fail on strings: !roll 1dc
+            num = int(num)
+            side = int(side)
+            if num <= 0:
+                logger.info("num is nonpositive: %s", num)
+                raise ValueError("num must be positive!")
+            if side <= 0:
+                logger.info("side is nonpositive: %s", side)
+                raise ValueError("side must be positive!")
+        except ValueError:
+            # !roll abc or !roll 1dc
+            logger.info("Rolling 1 input dice %s", inp)
+            return inp
+
+        logger.info("Rolling dnd dice with num %s and side %s", num, side)
+        # !roll 2d20
+        total = 0
+        total_str = ''
+        while num > 0:
+            ran = randint(1, side)
+            total += ran
+            total_str += f"({ran}) + "
+            num -= 1
+        total_str = total_str[:-2] + '= ' + str(total)
+        return total_str
+
+    # !roll Alice Bob Charlie
+    return inputs[randint(0, len(inputs) - 1)]
 
 def search(args: Set[str], inputs: List[str], search_type: Search) -> str:
     """
