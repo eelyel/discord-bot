@@ -1,7 +1,7 @@
 from log import logger
 import discord
+from typing import Set, List
 import os
-from typing import Set
 from commands import ALL_COMMANDS
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
@@ -16,8 +16,14 @@ async def on_ready():
 @client.event
 async def on_message(message):
     content = ' '.join(message.content.split())
+    channel = message.channel
 
-    command, args = parse_command(content)
+    command, args, inputs = parse_command(content)
+    if command is None:
+        return
+
+    client.send_message(channel, ALL_COMMANDS[command](args, inputs))
+
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -30,7 +36,7 @@ async def on_reaction_add(reaction, user):
         except discord.HTTPException:
             logger.info(f"Failed to delete message {message_info}")
 
-def parse_command(content: str) -> (str, Set[str]):
+def parse_command(content: str) -> (str, Set[str], List[str]):
     """
     Return a message content's command and arguments.
     
@@ -41,20 +47,20 @@ def parse_command(content: str) -> (str, Set[str]):
     ('wiki', {'1', '2', 'n', 'i', 'l'})
     """
     if len(content) == 0 or content[0] not in COMMAND_PREFIXES:
-        return None, None
+        return None, None, None
 
     # !wiki5abc oranges -> wiki5abc
     unparsed_command = content.split()[0][1:]
 
     commands = list(filter(lambda COMMAND: unparsed_command.startswith(COMMAND), ALL_COMMANDS.keys()))
 
-    if len(commands) == 0:
-        return None, None
+    if commands:
+        return None, None, None
 
     # Take the first command regardless of multiple matches
     command = commands[0]
     args = set(unparsed_command[len(command):])
-    return command, args
+    return command, args, content[1:] if len(content) > 1 else []
 
 
 client.run(BOT_TOKEN)
