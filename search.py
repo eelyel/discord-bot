@@ -1,7 +1,9 @@
+"""Contains core search functionality"""
 from enum import Enum
 import os
 
 class Search(Enum):
+    """Enums for predetermined search sites"""
     MAL = 'mal'
     MD = 'md'
     MU = 'mu'
@@ -21,4 +23,3 @@ class Search(Enum):
         WIKI: os.environ['GOOGLE_SEARCH_ENGINE_ID_WIKI'],
         XKCD: os.environ['GOOGLE_SEARCH_ENGINE_ID_XKCD'],
     }
-
