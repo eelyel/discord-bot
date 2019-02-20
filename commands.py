@@ -10,6 +10,7 @@ from search import Search
 ALL_COMMANDS = {
     'help': lambda *_: show_help(),
     # pylint: disable=unnecessary-lambda
+    # Required due to referencing function prior to declaration
     'ping': lambda args, inputs: ping(args, inputs),
     'roll': lambda _, inputs: roll(inputs),
     'scp': lambda args, inputs: search(args, inputs, Search.SCP),
