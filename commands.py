@@ -1,10 +1,9 @@
 """Core logic implementation of commands."""
-
 from typing import Set, List
 from random import randint
 import discord
 from log import logger
-from search import Search
+import searches
 
 
 ALL_COMMANDS = {
@@ -13,13 +12,13 @@ ALL_COMMANDS = {
     # Required due to referencing function prior to declaration
     'ping': lambda args, inputs: ping(args, inputs),
     'roll': lambda _, inputs: roll(inputs),
-    'scp': lambda args, inputs: search(args, inputs, Search.SCP),
-    'mal': lambda args, inputs: search(args, inputs, Search.MAL),
-    'md': lambda args, inputs: search(args, inputs, Search.MD),
-    'mu': lambda args, inputs: search(args, inputs, Search.MU),
-    'nu': lambda args, inputs: search(args, inputs, Search.NU),
-    'wiki': lambda args, inputs: search(args, inputs, Search.WIKI),
-    'xkcd': lambda args, inputs: search(args, inputs, Search.XKCD),
+    searches.SCP: lambda args, inputs: search(args, inputs, searches.SCP),
+    searches.MAL: lambda args, inputs: search(args, inputs, searches.MAL),
+    searches.MD: lambda args, inputs: search(args, inputs, searches.MD),
+    searches.MU: lambda args, inputs: search(args, inputs, searches.MU),
+    searches.NU: lambda args, inputs: search(args, inputs, searches.NU),
+    searches.WIKI: lambda args, inputs: search(args, inputs, searches.WIKI),
+    searches.XKCD: lambda args, inputs: search(args, inputs, searches.XKCD),
 }
 
 def show_help() -> str:
@@ -107,7 +106,7 @@ def roll(inputs: List[str]) -> str:
     # !roll Alice Bob Charlie
     return inputs[randint(0, len(inputs) - 1)]
 
-def search(args: Set[str], inputs: List[str], search_type: Search) -> str:
+def search(args: Set[str], inputs: List[str], search_type: str) -> str:
     """
     Return a formatted string from the given query in inputs and the search type.
     """
