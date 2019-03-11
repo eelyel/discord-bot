@@ -1,6 +1,7 @@
 """Contains core search functionality"""
 from typing import List
 import os
+import requests
 
 MAL = 'mal'
 MD = 'md'
@@ -29,4 +30,13 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
     List elements will be dictionaries with keys as below in the 'items' section:
     https://developers.google.com/custom-search/v1/cse/list#response
     """
-    pass
+    res = requests.get("https://www.googleapis.com/customsearch/v1",
+                       params={'key': GOOGLE_SEARCH_API_KEY,
+                               'q': search_query,
+                               'num': num_results,
+                               'cx': GOOGLE_SEARCH_ENGINE_IDS[search_type],
+                              }).json()
+    if 'error' in res:
+        return []
+
+    return res['items']
