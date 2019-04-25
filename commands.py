@@ -50,14 +50,14 @@ def roll(inputs: List[str]) -> str:
     """
     Return a randomized number or selection, based on the format of input.
 
-    >>> roll(['Alice', 'Bob', 'Charlie'])
-    'Bob'
+    # >>> roll(['Alice', 'Bob', 'Charlie'])
+    # 'Bob'
 
-    >>> roll(['6'])
-    '3'
+    # >>> roll(['6'])
+    # '3'
 
-    >>> roll(['2d20'])
-    '(15) + (3) = 18'
+    # >>> roll(['2d20'])
+    # '(15) + (3) = 18'
 
     >>> roll([''])
     ''
