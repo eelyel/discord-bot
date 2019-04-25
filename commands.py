@@ -13,6 +13,7 @@ ALL_COMMANDS = {
     'ping': lambda args, inputs: ping(args, inputs),
     'roll': lambda _, inputs: roll(inputs),
     searches.SCP: lambda args, inputs: search(args, inputs, searches.SCP),
+    searches.STEAM: lambda args, inputs: search(args, inputs, searches.STEAM),
     searches.MAL: lambda args, inputs: search(args, inputs, searches.MAL),
     searches.MD: lambda args, inputs: search(args, inputs, searches.MD),
     searches.MU: lambda args, inputs: search(args, inputs, searches.MU),

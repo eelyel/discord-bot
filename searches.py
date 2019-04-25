@@ -8,6 +8,7 @@ MD = 'md'
 MU = 'mu'
 NU = 'nu'
 SCP = 'scp'
+STEAM = 'steam'
 WIKI = 'wiki'
 XKCD = 'xkcd'
 
@@ -19,6 +20,7 @@ GOOGLE_SEARCH_ENGINE_IDS = {
     MU: os.environ['GOOGLE_SEARCH_ENGINE_ID_MU'],
     MU: os.environ['GOOGLE_SEARCH_ENGINE_ID_NU'],
     SCP: os.environ['GOOGLE_SEARCH_ENGINE_ID_SCP'],
+    STEAM: os.environ['GOOGLE_SEARCH_ENGINE_ID_STEAM'],
     WIKI: os.environ['GOOGLE_SEARCH_ENGINE_ID_WIKI'],
     XKCD: os.environ['GOOGLE_SEARCH_ENGINE_ID_XKCD'],
 }
