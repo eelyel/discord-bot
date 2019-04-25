@@ -36,7 +36,9 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
                                'num': num_results,
                                'cx': GOOGLE_SEARCH_ENGINE_IDS[search_type],
                               }).json()
-    if 'error' in res:
+
+    # there is no 'items' key if there's an error or no results
+    if 'error' in res or not int(res['searchInformation']['totalResults']):
         return []
 
     return res['items']

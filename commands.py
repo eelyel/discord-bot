@@ -106,9 +106,43 @@ def roll(inputs: List[str]) -> str:
     # !roll Alice Bob Charlie
     return inputs[randint(0, len(inputs) - 1)]
 
-def search(args: Set[str], inputs: List[str], search_type: str) -> str:
+def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed:
     """
     Return a formatted string from the given query in inputs and the search type.
     """
     logger.info("Searching - args: %s | inputs: %s | type: %s", args, inputs, search_type)
-    return ''
+
+    # default to one, lessening bot spam
+    num_results = 1
+
+    # Look for any numerical argument passed in; assume the first is the number of results
+    for arg in args:
+        if arg.isdigit():
+            arg_int = int(arg)
+            # capped results at 5 to prevent more than 2000 chars being sent at once (400 exception)
+            num_results = 5 if arg_int > 5 else arg_int
+            break
+
+    results = searches.google_search(' '.join(inputs), num_results, search_type)
+
+    if not results:
+        return ''
+
+    displayed_result = ''
+
+    # Formatting looks as follows:
+    # >>> !wiki apple
+    #
+    # Apple Inc. - Wikipedia
+    #
+    # Apple Inc. is an American multinational technology company headquartered in
+    # Cupertino, California, that designs, develops, and sells consumer electronics, ...
+    #
+    # https://en.wikipedia.org/wiki/Apple_Inc
+    for result in results:
+        title = result['title']
+        snippet = result['snippet']
+        link = result['link']
+        displayed_result += "**{}**\n{}\n{}\n\n".format(title, snippet, link)
+
+    return discord.Embed(title="Top search results", description=displayed_result)
