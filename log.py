@@ -1,6 +1,7 @@
 """Logging setup"""
 import logging
 
+# pylint: disable=pointless-string-statement
 '''
 Source: https://docs.python.org/2/howto/logging.html#logging-basic-tutorial
 
@@ -12,6 +13,7 @@ WARNING    An indication that something unexpected happened or will be problemat
 ERROR      Due to a more serious problem, the software has not been able to perform some function.
 CRITICAL   A serious error, indicating that the program itself may be unable to continue running.
 '''
+
 LOG_FILE = 'discord.log'
 
 # stylistic choice
