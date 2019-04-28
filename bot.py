@@ -33,9 +33,9 @@ async def on_message(message):
 
     msg = ALL_COMMANDS[command](args, inputs)
     if isinstance(msg, discord.Embed):
-        await client.send_message(channel, embed=msg)
+        await channel.send(embed=msg)
     elif msg:
-        await client.send_message(channel, msg)
+        await channel.send(msg)
 
 
 @client.event
@@ -51,7 +51,7 @@ async def on_reaction_add(reaction, user):
         message_info = f"{message.content} by {user.name} ({user.id})"
         logger.info("Attempting to delete message %s", message_info)
         try:
-            await client.delete_message(message)
+            await message.delete()
         except discord.HTTPException:
             logger.info("Failed to delete message %s", message_info)
 
