@@ -22,7 +22,7 @@ ALL_COMMANDS = {
     searches.XKCD: lambda args, inputs: search(args, inputs, searches.XKCD),
 }
 
-def show_help() -> str:
+def show_help() -> discord.Embed:
     """
     Return a help string.
     """
