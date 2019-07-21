@@ -42,4 +42,4 @@ Currently the Discord bot token as well as the google search engine ids are set 
 
 ### Planned features
 
-Message saving, user pinging, unit tests (in progress), github CI/CD
+Message saving,  unit tests (in progress), github CI/CD

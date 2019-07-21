@@ -8,9 +8,6 @@ import searches
 
 ALL_COMMANDS = {
     'help': lambda *_: show_help(),
-    # pylint: disable=unnecessary-lambda
-    # Required due to referencing function prior to declaration
-    'ping': lambda args, inputs: ping(args, inputs),
     'roll': lambda _, inputs: roll(inputs),
     searches.SCP: lambda args, inputs: search(args, inputs, searches.SCP),
     searches.STEAM: lambda args, inputs: search(args, inputs, searches.STEAM),
@@ -30,7 +27,6 @@ def show_help() -> discord.Embed:
         description="""Precede the following with any of `, !, $
                     **Misc**
                     help
-                    ping
                     roll <Number|NdM|abc>
 
 
@@ -38,13 +34,6 @@ def show_help() -> discord.Embed:
                     scp[#]  <number|search query>
                     <mal|md|mu|nu|wiki|xkcd>[#] <search query>"""
         )
-
-def ping(args: Set[str], inputs: List[str]) -> str:
-    """
-    Return a formatted string of IDs to be pinged.
-    """
-    logger.info("Pinging - args: %s | inputs: %s", args, inputs)
-    return ''
 
 def roll(inputs: List[str]) -> str:
     """
