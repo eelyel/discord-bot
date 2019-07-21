@@ -52,3 +52,22 @@ class TestRoll():
             # rolls, but give leeway and expect 300 instead
             for k in aggr:
                 assert aggr[k] > 300
+
+    class TestDnDNumbers():
+        def test_one_neg(self):
+            assert commands.roll(['1d-1']) == '1d-1'
+
+        def test_one_zero(self):
+            assert commands.roll(['1d0']) == '1d0'
+
+        def test_zero_one(self):
+            assert commands.roll(['0d1']) == '0d1'
+
+        def test_neg_one(self):
+            assert commands.roll(['-1d1']) == '-1d1'
+
+        def test_one_one(self):
+            assert commands.roll(['1d1']) == '(1) = 1'
+
+        def test_two_one(self):
+            assert commands.roll(['2d1']) == '(1) + (1) = 2'
