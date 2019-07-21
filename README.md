@@ -10,12 +10,18 @@ Python version 3.5.3 or above is required as the discord.py library requires it 
 
 ### Python libraries
 
-Currently one library is needed to run the bot itself, and another for testing:
+The following libraries are required:
 
 discord.py is used as a wrapper for the Discord API. Installation instructions are as in [here](https://pypi.org/project/discord.py/):
 
 ```
 python3 -m pip install -U discord.py[voice]
+```
+
+The requests library is used for API calls:
+
+```
+python3 -m pip install -U requests
 ```
 
 pytest is used as an alternative to the default unittest module. Installation instructions are as in [here](https://docs.pytest.org/en/latest/getting-started.html):
