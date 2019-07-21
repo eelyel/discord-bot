@@ -1,4 +1,5 @@
-# Discord Bot
+
+# Discord Bot [![Build Status](https://travis-ci.org/slateny/discord-bot.svg?branch=master)](https://travis-ci.org/slateny/discord-bot)
 
 A Discord bot with several available capabilities such as dice rolls and text-embedded search queries for multiple websites.
 
