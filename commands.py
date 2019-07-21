@@ -60,7 +60,7 @@ def roll(inputs: List[str]) -> str:
 
     if len(inputs) == 1:
         inp = inputs[0]
-        # !roll 10
+        # !roll 10 - standard n-sided roll
         if inp.isdigit() and int(inp) > 0:
             return str(randint(1, int(inp)))
 
@@ -82,7 +82,7 @@ def roll(inputs: List[str]) -> str:
             return inp
 
         logger.info("Rolling dnd dice with num %s and side %s", num, side)
-        # !roll 2d20
+        # !roll 2d20 - DnD style rolling
         total = 0
         total_str = ''
         while num > 0:
@@ -93,7 +93,7 @@ def roll(inputs: List[str]) -> str:
         total_str = total_str[:-2] + '= ' + str(total)
         return total_str
 
-    # !roll Alice Bob Charlie
+    # !roll Alice Bob Charlie - random string list rolling
     return inputs[randint(0, len(inputs) - 1)]
 
 def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed:
@@ -102,10 +102,11 @@ def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed
     """
     logger.info("Searching - args: %s | inputs: %s | type: %s", args, inputs, search_type)
 
-    # default to one, lessening bot spam
+    # default to one to prevent the bot's messages from taking too much space in chat
     num_results = 1
 
-    # Look for any numerical argument passed in; assume the first is the number of results
+    # Look for any numerical argument passed in; arbitrarily choose the first
+    # to represent the number of search results to return (it will never be > 10)
     for arg in args:
         if arg.isdigit():
             arg_int = int(arg)
