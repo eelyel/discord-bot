@@ -23,14 +23,14 @@ class TestRoll():
         def test_equal(self):
             # aggregate and count up how many of each occurs
             aggr = {'Alice': 0, 'Bob': 0, 'Charlie': 0}
-            for _ in range(1000):
+            for _ in range(10000):
                 res = commands.roll(['Alice', 'Bob', 'Charlie'])
                 aggr[res] += 1
 
             # by law of large numbers each of the above should be 'roughly' 1/3
-            # though 333 each is expected, we give leeway and expect 300 instead
+            # though 3333 each is expected, we give leeway and expect 3000 instead
             for k in aggr:
-                assert aggr[k] > 300
+                assert aggr[k] > 3000
 
     class TestNumbersStandard():
         def test_zero(self):
@@ -45,13 +45,13 @@ class TestRoll():
         def test_dice(self):
             # aggregate and count occurances
             aggr = {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0}
-            for _ in range(2000):
+            for _ in range(20000):
                 res = commands.roll(['6'])
                 aggr[res] += 1
-            # as in the case of test_equal above, we expect around 333
-            # rolls, but give leeway and expect 300 instead
+            # as in the case of test_equal above, we expect around 3333
+            # rolls, but give leeway and expect 3000 instead
             for k in aggr:
-                assert aggr[k] > 300
+                assert aggr[k] > 3000
 
     class TestDnDNumbers():
         def test_one_neg(self):
