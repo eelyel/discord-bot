@@ -4,11 +4,15 @@ from random import randint
 import discord
 from log import logger
 import searches
+import re
+import requests
+from zipfile import ZipFile
 
 
 ALL_COMMANDS = {
     'help': lambda *_: show_help(),
     'roll': lambda _, inputs: roll(inputs),
+    'zip': lambda _, inputs: comic_zip(inputs),
     searches.SCP: lambda args, inputs: search(args, inputs, searches.SCP),
     searches.STEAM: lambda args, inputs: search(args, inputs, searches.STEAM),
     searches.MAL: lambda args, inputs: search(args, inputs, searches.MAL),
@@ -28,7 +32,7 @@ def show_help() -> discord.Embed:
                     **Misc**
                     help
                     roll <Number|NdM|abc>
-
+                    zip <url>
 
                     **Searches**
                     scp[#]  <number|search query>
@@ -95,6 +99,49 @@ def roll(inputs: List[str]) -> str:
 
     # !roll Alice Bob Charlie - random string list rolling
     return inputs[randint(0, len(inputs) - 1)]
+
+def comic_zip(inputs: List[str]) -> discord.Embed:
+    """
+    Return a message of the uploaded zip file containing the enhanced images from alphapolis.
+    """
+    if not inputs:
+        return
+
+    url = inputs[0]
+    logger.info("Received URL: %s", url)
+
+    html = requests.get(url)
+    logger.info("Received HTML for site %s", url)
+
+    # match the images and replace them with higher quality ones
+    # match pages.push("xxx/500x711.jpg")
+    image_urls = re.findall("pages\.push\(\"(.*)500x711\.jpg\"\)", html.text)
+    image_urls = [url + "1080x1536.jpg" for url in image_urls]
+    num_images = len(image_urls)
+    logger.info("Found %i images", num_images)
+
+    if not num_images:
+        return
+
+    # ignore compression for now
+    with ZipFile('images.zip', "w") as z:
+        for i in range(num_images):
+            url = image_urls[i]
+            image_data = requests.get(url).content
+            z.writestr("{}.jpg".format(i), image_data)
+            logger.info("Zipping %i of %i", i+1, num_images)
+
+    upload_site = "https://0x0.st"
+
+    logger.info("Uploading zip . . .")
+    with open('images.zip', 'rb') as f:
+        upload_response = requests.post(upload_site, files={'file': f})
+    logger.info("Uploaded zip: %s", upload_response.text)
+
+    if not upload_response:
+        return
+
+    return discord.Embed(title=f"Zip uploaded, totalling {len(image_urls)} images", description=upload_response.text)
 
 def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed:
     """
