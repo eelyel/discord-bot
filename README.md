@@ -31,6 +31,12 @@ pytest is used as an alternative to the default unittest module. Installation in
 python3 -m pip install -U pytest
 ```
 
+AWS Lambda is used, which relies on a system call to the [AWS CLI](https://aws.amazon.com/cli/):
+
+```
+python3 -m pip install -U awscli
+```
+
 To run the tests, do
 
 ```
@@ -39,8 +45,8 @@ pytest test.py
 
 ### Environmental variables
 
-Currently the Discord bot token as well as the google search engine ids are set via environmental variables. Remove or comment out the instance in commands.py and searches.py if the command is unneeded.
+Currently the Discord bot token as well as the Google search engine ids are set via environmental variables. Remove or comment out the instance in commands.py and searches.py if the command is unneeded.
 
 ### Planned features
 
-Message saving,  unit tests (in progress), github CI/CD
+Message saving
