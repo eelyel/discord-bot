@@ -5,6 +5,7 @@ import os
 from commands import ALL_COMMANDS
 import discord
 from log import logger
+import inspect
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 COMMAND_PREFIXES = ["!", "$", "`"]
@@ -31,7 +32,12 @@ async def on_message(message):
     if command is None:
         return
 
-    msg = ALL_COMMANDS[command](args, inputs)
+    fnc = ALL_COMMANDS[command]
+    if inspect.isawaitable(fnc(args, inputs)):
+        msg = await fnc(args, inputs)
+    else:
+        msg = fnc(args, inputs)
+
     if isinstance(msg, discord.Embed):
         await channel.send(embed=msg)
     elif msg:

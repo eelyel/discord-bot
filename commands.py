@@ -7,6 +7,10 @@ import searches
 import re
 import requests
 from zipfile import ZipFile
+from subprocess import Popen
+import uuid
+import os
+import asyncio
 
 
 ALL_COMMANDS = {
@@ -100,7 +104,7 @@ def roll(inputs: List[str]) -> str:
     # !roll Alice Bob Charlie - random string list rolling
     return inputs[randint(0, len(inputs) - 1)]
 
-def comic_zip(inputs: List[str]) -> discord.Embed:
+async def comic_zip(inputs: List[str]) -> discord.Embed:
     """
     Return a message of the uploaded zip file containing the enhanced images from alphapolis.
     """
@@ -110,38 +114,40 @@ def comic_zip(inputs: List[str]) -> discord.Embed:
     url = inputs[0]
     logger.info("Received URL: %s", url)
 
-    html = requests.get(url)
-    logger.info("Received HTML for site %s", url)
+    # no string formatting as single/double bracket type matters (json accepts only a particular type)
+    payload = '{"site": "' + url + '"}'
 
-    # match the images and replace them with higher quality ones
-    # match pages.push("xxx/500x711.jpg")
-    image_urls = re.findall("pages\.push\(\"(.*)500x711\.jpg\"\)", html.text)
-    image_urls = [url + "1080x1536.jpg" for url in image_urls]
-    num_images = len(image_urls)
-    logger.info("Found %i images", num_images)
+    # verify there are no duplicates
+    while 1:
+        filepath = "/tmp/" + str(uuid.uuid4())
+        if not os.path.isfile(filepath):
+            break
 
-    if not num_images:
-        return
+    # offload processing to AWS lambda - code is in lambda.py
+    logger.info("Sending payload %s to lambda, storing in %s", payload, filepath)
+    p = Popen(['aws', 'lambda', 'invoke', '--function-name', 'alpha_zip', '--payload', payload, filepath])
 
-    # ignore compression for now
-    with ZipFile('images.zip', "w") as z:
-        for i in range(num_images):
-            url = image_urls[i]
-            image_data = requests.get(url).content
-            z.writestr("{}.jpg".format(i), image_data)
-            logger.info("Zipping %i of %i", i+1, num_images)
+    # allow a full minute for lambda to respond - sometimes the zip can get a bit large
+    for i in range(60):
+        if os.path.isfile(filepath):
+            if not i:
+                return
+            break
+        await asyncio.sleep(1)
 
-    upload_site = "https://0x0.st"
+    with open(filepath, 'r') as f:
+        result = f.read()
+    logger.info("Received %s", result)
 
-    logger.info("Uploading zip . . .")
-    with open('images.zip', 'rb') as f:
-        upload_response = requests.post(upload_site, files={'file': f})
-    logger.info("Uploaded zip: %s", upload_response.text)
+    # /tmp/ may not be cleaned up until reboot, but EC2 won't reboot often so better to immediately remove
+    os.remove(filepath)
+    logger.info("Deleted %s", filepath)
 
-    if not upload_response:
-        return
-
-    return discord.Embed(title=f"Zip uploaded, totalling {len(image_urls)} images", description=upload_response.text)
+    upload_url = re.search("(https:.*?\.zip)", result)
+    logger.info("URL found: %s", upload_url)
+    if upload_url:
+        return discord.Embed(title=f"Zip of {url}:", description=upload_url[0])
+    return "Unable to zip images - verify URL"
 
 def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed:
     """
