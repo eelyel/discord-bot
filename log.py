@@ -22,6 +22,6 @@ logger = logging.getLogger('discord')
 # likewise
 # pylint: disable=invalid-name
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
