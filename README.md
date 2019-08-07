@@ -7,7 +7,7 @@ A Discord bot with several available capabilities such as dice rolls and text-em
 
 ### Python
 
-Python version 3.5.3 or above is required as the discord.py library requires it above that version.
+Python version 3.6 is required as AWS Lambda uses only that version.
 
 ### Python libraries
 
