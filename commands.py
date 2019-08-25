@@ -170,7 +170,7 @@ def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed
     results = searches.google_search(' '.join(inputs), num_results, search_type)
 
     if not results:
-        return ''
+        return "No results found - please verify spelling"
 
     displayed_result = ''
 
