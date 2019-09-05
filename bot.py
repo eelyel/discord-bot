@@ -30,9 +30,10 @@ async def on_message(message):
 
     command, args, inputs = parse_command(content)
     if command is None:
-        # only store messages if they're not commands
-        BUFFER_MESSAGES.insert(message.channel.id, (message.id, message.content))
-        logger.info("Buffer messages is now %s", BUFFER_MESSAGES)
+        # only store messages if they're not commands or not from the bot
+        if message.author.id is not client.user.id:
+            BUFFER_MESSAGES.insert(message.channel.id, (message.id, message.content))
+            logger.info("Buffer messages is now %s", BUFFER_MESSAGES)
         return
 
     fnc = ALL_COMMANDS[command]
