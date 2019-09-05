@@ -1,5 +1,6 @@
 """Core logic implementation of commands."""
-from typing import Set, List
+from bufferlist import Buffer_List
+from typing import List
 from random import randint
 import discord
 from log import logger
@@ -15,17 +16,19 @@ import asyncio
 
 ALL_COMMANDS = {
     'help': lambda *_: show_help(),
-    'roll': lambda _, inputs: roll(inputs),
-    'zip': lambda _, inputs: comic_zip(inputs),
-    searches.SCP: lambda args, inputs: search(args, inputs, searches.SCP),
-    searches.STEAM: lambda args, inputs: search(args, inputs, searches.STEAM),
-    searches.MAL: lambda args, inputs: search(args, inputs, searches.MAL),
-    searches.MD: lambda args, inputs: search(args, inputs, searches.MD),
-    searches.MU: lambda args, inputs: search(args, inputs, searches.MU),
-    searches.NU: lambda args, inputs: search(args, inputs, searches.NU),
-    searches.WIKI: lambda args, inputs: search(args, inputs, searches.WIKI),
-    searches.XKCD: lambda args, inputs: search(args, inputs, searches.XKCD),
+    'roll': lambda _, inputs, cid: roll(inputs),
+    'zip': lambda _, inputs, cid: comic_zip(inputs),
+    searches.SCP: lambda args, inputs, cid: search(args, inputs, searches.SCP, cid),
+    searches.STEAM: lambda args, inputs, cid: search(args, inputs, searches.STEAM, cid),
+    searches.MAL: lambda args, inputs, cid: search(args, inputs, searches.MAL, cid),
+    searches.MD: lambda args, inputs, cid: search(args, inputs, searches.MD, cid),
+    searches.MU: lambda args, inputs, cid: search(args, inputs, searches.MU, cid),
+    searches.NU: lambda args, inputs, cid: search(args, inputs, searches.NU, cid),
+    searches.WIKI: lambda args, inputs, cid: search(args, inputs, searches.WIKI, cid),
+    searches.XKCD: lambda args, inputs, cid: search(args, inputs, searches.XKCD, cid),
 }
+
+BUFFER_MESSAGES = Buffer_List()
 
 def show_help() -> discord.Embed:
     """
@@ -39,8 +42,7 @@ def show_help() -> discord.Embed:
                     zip <url>
 
                     **Searches**
-                    scp[#]  <number|search query>
-                    <mal|md|mu|nu|wiki|xkcd>[#] <search query>"""
+                    <mal|md|mu|nu|scp|wiki|xkcd>[#][^][#] <search query>"""
         )
 
 def roll(inputs: List[str]) -> str:
@@ -149,25 +151,37 @@ async def comic_zip(inputs: List[str]) -> discord.Embed:
         return discord.Embed(title=f"Zip of {url}:", description=upload_url[0])
     return "Unable to zip images - verify URL"
 
-def search(args: Set[str], inputs: List[str], search_type: str) -> discord.Embed:
+def search(args: List[str], inputs: List[str], search_type: str, channel_id: int) -> discord.Embed:
     """
     Return a formatted string from the given query in inputs and the search type.
     """
     logger.info("Searching - args: %s | inputs: %s | type: %s", args, inputs, search_type)
 
+    inputs = ' '.join(inputs)
+
     # default to one to prevent the bot's messages from taking too much space in chat
     num_results = 1
 
-    # Look for any numerical argument passed in; arbitrarily choose the first
-    # to represent the number of search results to return (it will never be > 10)
+    # Look for any numerical argument passed in; arbitrarily choose one
+    # it will represent the number of search results to return (it will never be > 10)
+    # also look for ^, the character for indicating we should use recent messages from the chat
     for arg in args:
         if arg.isdigit():
             arg_int = int(arg)
             # capped results at 5 to prevent more than 2000 chars being sent at once (400 exception)
             num_results = 5 if arg_int > 5 else arg_int
-            break
+            logger.info("Changing number of search results to %i", num_results)
+        if arg.startswith('^'):
+            logger.info("Searching via past messages")
+            try:
+                inputs = BUFFER_MESSAGES.get(channel_id, int(arg[1]))
+                logger.info("Searching via past message of %s", inputs)
+            except IndexError:
+                # if indeed the ^ command is accompanied with no additional argument
+                inputs = BUFFER_MESSAGES.get(channel_id, 0)
+                logger.info("Failed to retrieved specified message, now searching for %s", inputs)
 
-    results = searches.google_search(' '.join(inputs), num_results, search_type)
+    results = searches.google_search(inputs, num_results, search_type)
 
     if not results:
         return "No results found - please verify spelling"

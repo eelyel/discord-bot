@@ -1,8 +1,8 @@
 """Parses Discord information and delegates function calls"""
 
-from typing import Set, List
+from typing import List
 import os
-from commands import ALL_COMMANDS
+from commands import ALL_COMMANDS, BUFFER_MESSAGES
 import discord
 from log import logger
 import inspect
@@ -30,19 +30,26 @@ async def on_message(message):
 
     command, args, inputs = parse_command(content)
     if command is None:
+        # only store messages if they're not commands
+        BUFFER_MESSAGES.insert(message.channel.id, (message.id, message.content))
+        logger.info("Buffer messages is now %s", BUFFER_MESSAGES)
         return
 
     fnc = ALL_COMMANDS[command]
-    if inspect.isawaitable(fnc(args, inputs)):
-        msg = await fnc(args, inputs)
+    if inspect.isawaitable(fnc(args, inputs, message.channel.id)):
+        msg = await fnc(args, inputs, message.channel.id)
     else:
-        msg = fnc(args, inputs)
+        msg = fnc(args, inputs, message.channel.id)
 
     if isinstance(msg, discord.Embed):
         await channel.send(embed=msg)
     elif msg:
         await channel.send(msg)
 
+@client.event
+async def on_message_delete(message):
+    # this is to avoid unwanted messages from being discovered via the bot
+    BUFFER_MESSAGES.remove(message.channel.id, message.id)
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -61,15 +68,19 @@ async def on_reaction_add(reaction, user):
         except discord.HTTPException:
             logger.info("Failed to delete message %s", message_info)
 
-def parse_command(content: str) -> (str, Set[str], List[str]):
+def parse_command(content: str) -> (str, List[str], List[str]):
     """
     Return a message content's command, arguments, and inputs.
 
     >>> parse_command("!wiki")
-    ('wiki', set(), [])
+    ('wiki', [], [])
 
     >>> parse_command("`wiki12nil hello and bye")
     ('wiki', {'1', '2', 'n', 'i', 'l'}, ['hello', 'and', 'bye'])
+
+    # the ^ indicates to the command that it should take its inputs from previous server messages
+    >>> parse_command("`$wiki1^2")
+    ('wiki', {'1', '^2'})
     """
     if not content or content[0] not in COMMAND_PREFIXES:
         return None, None, None
@@ -86,7 +97,20 @@ def parse_command(content: str) -> (str, Set[str], List[str]):
 
     # Take the first command regardless of multiple matches
     command = commands[0]
-    args = set(unparsed_command[len(command):])
+
+    args = list(unparsed_command[len(command):])
+    # extract the ^ (search character) and merge it with the number if applicable (['^', '1'] -> ['^1'])
+    # if there is no number immediately following the ^, then ignore the character following it
+    s_char = '^'
+    try:
+        pos = args.index(s_char)
+        if args[pos + 1].isdigit():
+            args[pos] = args[pos] + args[pos+1]
+            del args[pos+1]
+    except (ValueError, IndexError):
+        # char may not exist, or may not have a valid tracing character
+        # either way, no need to touch the arguments
+        pass
     return command, args, split_content[1:]
 
 
