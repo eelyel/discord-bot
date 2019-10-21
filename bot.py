@@ -36,6 +36,11 @@ async def on_message(message):
             logger.info("Buffer messages is now %s", BUFFER_MESSAGES)
         return
 
+    # kill switch that hangs the bot
+    if command == 'kill':
+        while 1:
+            pass
+
     fnc = ALL_COMMANDS[command]
     if inspect.isawaitable(fnc(args, inputs, message.channel.id)):
         msg = await fnc(args, inputs, message.channel.id)

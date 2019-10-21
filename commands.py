@@ -16,6 +16,7 @@ import asyncio
 
 ALL_COMMANDS = {
     'help': lambda *_: show_help(),
+    'kill': None,
     'roll': lambda _, inputs, cid: roll(inputs),
     'zip': lambda _, inputs, cid: comic_zip(inputs),
     searches.SCP: lambda args, inputs, cid: search(args, inputs, searches.SCP, cid),
