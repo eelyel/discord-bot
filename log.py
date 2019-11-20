@@ -1,5 +1,6 @@
 """Logging setup"""
 import logging
+import sys
 
 # pylint: disable=pointless-string-statement
 '''
@@ -25,3 +26,8 @@ logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
+
+def exception_handler(type, value, tb):
+    logger.exception("Uncaught excpetion: {0}".format(str(value)))
+
+sys.excepthook = exception_handler
