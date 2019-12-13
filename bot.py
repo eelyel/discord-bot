@@ -42,9 +42,11 @@ async def on_message(message):
             pass
 
     fnc = ALL_COMMANDS[command]
-    if inspect.isawaitable(fnc(args, inputs, message.channel.id)):
+    if inspect.isawaitable(fnc):
+        logger.info("function is awaitable")
         msg = await fnc(args, inputs, message.channel.id)
     else:
+        logger.info("function is not awaitable")
         msg = fnc(args, inputs, message.channel.id)
 
     if isinstance(msg, discord.Embed):
