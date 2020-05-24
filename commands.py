@@ -18,7 +18,6 @@ ALL_COMMANDS = {
     'help': lambda *_: show_help(),
     'kill': None,
     'roll': lambda _, inputs, cid: roll(inputs),
-    'zip': lambda _, inputs, cid: comic_zip(inputs),
     searches.SCP: lambda args, inputs, cid: search(args, inputs, searches.SCP, cid),
     searches.STEAM: lambda args, inputs, cid: search(args, inputs, searches.STEAM, cid),
     searches.MAL: lambda args, inputs, cid: search(args, inputs, searches.MAL, cid),
@@ -106,51 +105,6 @@ def roll(inputs: List[str]) -> str:
 
     # !roll Alice Bob Charlie - random string list rolling
     return inputs[randint(0, len(inputs) - 1)]
-
-async def comic_zip(inputs: List[str]) -> discord.Embed:
-    """
-    Return a message of the uploaded zip file containing the enhanced images from alphapolis.
-    """
-    if not inputs:
-        return
-
-    url = inputs[0]
-    logger.info("Received URL: %s", url)
-
-    # no string formatting as single/double bracket type matters (json accepts only a particular type)
-    payload = '{"site": "' + url + '"}'
-
-    # verify there are no duplicates
-    while 1:
-        filepath = "/tmp/" + str(uuid.uuid4())
-        if not os.path.isfile(filepath):
-            break
-
-    # offload processing to AWS lambda - code is in lambda.py
-    logger.info("Sending payload %s to lambda, storing in %s", payload, filepath)
-    p = Popen(['aws', 'lambda', 'invoke', '--function-name', 'alpha_zip', '--payload', payload, filepath])
-
-    # allow a full minute for lambda to respond - sometimes the zip can get a bit large
-    for i in range(60):
-        if os.path.isfile(filepath):
-            if not i:
-                return
-            break
-        await asyncio.sleep(1)
-
-    with open(filepath, 'r') as f:
-        result = f.read()
-    logger.info("Received %s", result)
-
-    # /tmp/ may not be cleaned up until reboot, but EC2 won't reboot often so better to immediately remove
-    os.remove(filepath)
-    logger.info("Deleted %s", filepath)
-
-    upload_url = re.search("(https:.*?\.zip)", result)
-    logger.info("URL found: %s", upload_url)
-    if upload_url:
-        return discord.Embed(title=f"Zip of {url}:", description=upload_url[0])
-    return "Unable to zip images - verify URL"
 
 def search(args: List[str], inputs: List[str], search_type: str, channel_id: int) -> discord.Embed:
     """
