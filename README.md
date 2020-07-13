@@ -7,7 +7,7 @@ A Discord bot with several available capabilities such as dice rolls and text-em
 
 ### Python
 
-Python version 3.6 is required as AWS Lambda uses only that version.
+The project is based on Python version 3.6 currently.
 
 ### Python libraries
 
@@ -16,7 +16,7 @@ The following libraries are required:
 discord.py is used as a wrapper for the Discord API. Installation instructions are as in [here](https://pypi.org/project/discord.py/):
 
 ```
-python3 -m pip install -U discord.py[voice]
+python3 -m pip install -U discord.py
 ```
 
 The requests library is used for API calls:
@@ -42,11 +42,3 @@ To run the tests, do
 ```
 pytest test.py
 ```
-
-### Environmental variables
-
-Currently the Discord bot token as well as the Google search engine ids are set via environmental variables. Remove or comment out the instance in commands.py and searches.py if the command is unneeded.
-
-### Planned features
-
-Message saving
