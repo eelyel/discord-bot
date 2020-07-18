@@ -1,5 +1,5 @@
 
-# Discord Bot [![Build Status](https://travis-ci.org/slateny/discord-bot.svg?branch=master)](https://travis-ci.org/slateny/discord-bot)
+# Discord Bot
 
 A Discord bot with several available capabilities such as dice rolls and text-embedded search queries for multiple websites.
 
@@ -25,20 +25,8 @@ The requests library is used for API calls:
 python3 -m pip install -U requests
 ```
 
-pytest is used as an alternative to the default unittest module. Installation instructions are as in [here](https://docs.pytest.org/en/latest/getting-started.html):
-
-```
-python3 -m pip install -U pytest
-```
-
 AWS Lambda is used, which relies on a system call to the [AWS CLI](https://aws.amazon.com/cli/):
 
 ```
 python3 -m pip install -U awscli
-```
-
-To run the tests, do
-
-```
-pytest test.py
 ```
