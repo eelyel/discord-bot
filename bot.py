@@ -2,7 +2,7 @@
 
 from typing import List
 import os
-from commands import ALL_COMMANDS, BUFFER_MESSAGES
+from commands import ALL_COMMANDS
 import discord
 from log import logger
 import inspect
@@ -14,6 +14,7 @@ COMMAND_PREFIXES = ["!", "$", "`"]
 # Disabled due to style
 client = discord.Client()
 
+
 @client.event
 async def on_ready():
     """
@@ -21,6 +22,7 @@ async def on_ready():
     may not be the first to be called, and also may not be called just once
     """
     logger.info("Logged in as: %s (%s)", client.user.name, client.user.id)
+
 
 @client.event
 async def on_message(message):
@@ -30,10 +32,6 @@ async def on_message(message):
 
     command, args, inputs = parse_command(content)
     if command is None:
-        # only store messages if they're not commands or not from the bot
-        if message.author.id is not client.user.id:
-            BUFFER_MESSAGES.insert(message.channel.id, (message.id, message.content))
-            logger.info("Buffer messages is now %s", BUFFER_MESSAGES)
         return
 
     # kill switch that hangs the bot
@@ -54,10 +52,6 @@ async def on_message(message):
     elif msg:
         await channel.send(msg)
 
-@client.event
-async def on_message_delete(message):
-    # this is to avoid unwanted messages from being discovered via the bot
-    BUFFER_MESSAGES.remove(message.channel.id, message.id)
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -75,6 +69,7 @@ async def on_reaction_add(reaction, user):
             await message.delete()
         except discord.HTTPException:
             logger.info("Failed to delete message %s", message_info)
+
 
 def parse_command(content: str) -> (str, List[str], List[str]):
     """
@@ -113,8 +108,8 @@ def parse_command(content: str) -> (str, List[str], List[str]):
     try:
         pos = args.index(s_char)
         if args[pos + 1].isdigit():
-            args[pos] = args[pos] + args[pos+1]
-            del args[pos+1]
+            args[pos] = args[pos] + args[pos + 1]
+            del args[pos + 1]
     except (ValueError, IndexError):
         # char may not exist, or may not have a valid tracing character
         # either way, no need to touch the arguments

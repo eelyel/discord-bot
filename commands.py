@@ -1,18 +1,10 @@
 """Core logic implementation of commands."""
-from bufferlist import Buffer_List
 from typing import List
 from random import randint
 import discord
 from log import logger
 from searches import search
 import searches
-import re
-import requests
-from zipfile import ZipFile
-from subprocess import Popen
-import uuid
-import os
-import asyncio
 from functools import partial
 
 
@@ -30,12 +22,8 @@ ALL_COMMANDS = {
     searches.XKCD: partial(search, searches.XKCD),
 }
 
-BUFFER_MESSAGES = Buffer_List()
 
 def show_help() -> discord.Embed:
-    """
-    Return a help string.
-    """
     return discord.Embed(
         description="""Precede the following with any of `, !, $
                     **Misc**
@@ -45,7 +33,8 @@ def show_help() -> discord.Embed:
 
                     **Searches**
                     <mal|md|mu|nu|scp|wiki|xkcd>[#][^][#] <search query>"""
-        )
+    )
+
 
 def roll(inputs: List[str]) -> str:
     """
@@ -107,4 +96,3 @@ def roll(inputs: List[str]) -> str:
 
     # !roll Alice Bob Charlie - random string list rolling
     return inputs[randint(0, len(inputs) - 1)]
-
