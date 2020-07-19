@@ -6,7 +6,7 @@ import unittest
 class TestCommands(unittest.TestCase):
     @patch('commands.discord', auto_spec=True)
     def test_show_help_will_return_discord_embed_string_with_help_message(self, discord):
-        discord.Embed.return_value = commands.HELP_MESSAGE
+        discord.Embed.side_effect = lambda description: description
         output = commands.show_help()
 
         self.assertEqual(commands.HELP_MESSAGE, output)

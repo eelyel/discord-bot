@@ -5,6 +5,8 @@ import discord
 import os
 import requests
 
+NO_RESULTS_FOUND_MESSAGE = "No results found"
+
 MAL = 'mal'
 MD = 'md'
 MU = 'mu'
@@ -60,35 +62,35 @@ def search(search_type: str, args: List[str], inputs: List[str], channel_id: int
 
     # default to one to prevent the bot's messages from taking too much space in chat
     # also notes if the result is fixed; by default it is not
-    num_results = (1, False)
+    num_results = 1
 
     # Look for any numerical argument passed in; arbitrarily choose one
     # it will represent the number of search results to return (it will never be > 10)
     # look also for 'r': this represents a random number between 1-5000 - specifically for SCP
     for arg in args:
-        if arg.isdigit() and not num_results[1]:
-            arg_int = int(arg)
+        if arg.isdigit():
             # capped results at 5 to prevent more than 2000 chars being sent at once (400 exception)
-            num_results = (5, False) if arg_int > 5 else (arg_int, False)
-            logger.info("Changing number of search results to %i", num_results[0])
+            num_results = min(int(arg), 5)
+            logger.info("Changing number of search results to %i", num_results)
         if 'r' in arg:
-            ran = randint(1, 5000)
             # allow results to be 3
-            num_results = (3, True)
-            inputs.append(str(ran))
-            logger.info("Appended %i to inputs: %s", ran, inputs)
+            num_results = 3
+            scp_num = str(randint(1, 5000))
+            inputs.append(scp_num)
+            logger.info("Appended %s to inputs: %s", scp_num, inputs)
+            break
 
     inputs = ' '.join(inputs)
     logger.info("post-process - args: %s | inputs: %s | type: %s", args, inputs, search_type)
 
-    results = google_search(inputs, num_results[0], search_type)
+    results = google_search(inputs, num_results, search_type)
 
     if not results:
-        return "No results found"
+        return NO_RESULTS_FOUND_MESSAGE
 
     displayed_result = ''
 
-    # Formatting looks as follows:
+    # Formatting appearance:
     # >>> !wiki apple
     #
     # Apple Inc. - Wikipedia
