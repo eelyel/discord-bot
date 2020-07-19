@@ -1,25 +1,8 @@
-from functools import partial
 from log import logger
 from random import randint
-from searches import search
 from typing import List
 import discord
-import searches
 
-
-ALL_COMMANDS = {
-    'help': lambda *_: show_help(),
-    'kill': None,
-    'roll': lambda _, inputs, cid: roll(inputs),
-    searches.MAL: partial(search, searches.MAL),
-    searches.MD: partial(search, searches.MD),
-    searches.MU: partial(search, searches.MU),
-    searches.NU: partial(search, searches.NU),
-    searches.SCP: partial(search, searches.SCP),
-    searches.STEAM: partial(search, searches.STEAM),
-    searches.WIKI: partial(search, searches.WIKI),
-    searches.XKCD: partial(search, searches.XKCD),
-}
 
 HELP_MESSAGE = """
     Precede the following with any of `, !, $

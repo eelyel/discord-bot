@@ -1,12 +1,29 @@
-from commands import ALL_COMMANDS
+from commands import show_help, roll
+from functools import partial
 from log import logger
+from searches import search
 from typing import List
 import discord
 import inspect
 import os
+import searches
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 COMMAND_PREFIXES = ["!", "$", "`"]
+ALL_COMMANDS = {
+    'help': lambda *_: show_help(),
+    'kill': None,
+    'roll': lambda _, inputs, cid: roll(inputs),
+    searches.MAL: partial(search, searches.MAL),
+    searches.MD: partial(search, searches.MD),
+    searches.MU: partial(search, searches.MU),
+    searches.NU: partial(search, searches.NU),
+    searches.SCP: partial(search, searches.SCP),
+    searches.STEAM: partial(search, searches.STEAM),
+    searches.WIKI: partial(search, searches.WIKI),
+    searches.XKCD: partial(search, searches.XKCD),
+}
+
 
 # pylint: disable=invalid-name
 # Disabled due to style
@@ -34,6 +51,7 @@ async def on_message(message):
 
     # kill switch that hangs the bot
     if command == 'kill':
+        logger.warning("Killing bot")
         while 1:
             pass
 
