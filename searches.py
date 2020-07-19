@@ -64,7 +64,6 @@ def search(search_type: str, args: List[str], inputs: List[str], channel_id: int
 
     # Look for any numerical argument passed in; arbitrarily choose one
     # it will represent the number of search results to return (it will never be > 10)
-    # also look for ^, the character for indicating we should use recent messages from the chat
     # look also for 'r': this represents a random number between 1-5000 - specifically for SCP
     for arg in args:
         if arg.isdigit() and not num_results[1]:
@@ -85,7 +84,7 @@ def search(search_type: str, args: List[str], inputs: List[str], channel_id: int
     results = google_search(inputs, num_results[0], search_type)
 
     if not results:
-        return "No results found - please verify spelling"
+        return "No results found"
 
     displayed_result = ''
 

@@ -1,8 +1,6 @@
-"""Logging setup"""
 import logging
 import sys
 
-# pylint: disable=pointless-string-statement
 '''
 Source: https://docs.python.org/2/howto/logging.html#logging-basic-tutorial
 
@@ -17,11 +15,7 @@ CRITICAL   A serious error, indicating that the program itself may be unable to 
 
 LOG_FILE = 'discord.log'
 
-# stylistic choice
-# pylint: disable=invalid-name
 logger = logging.getLogger('discord')
-# likewise
-# pylint: disable=invalid-name
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
