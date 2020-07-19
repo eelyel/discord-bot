@@ -21,15 +21,19 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-      
+
     - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
         python-version: 3.6
 
     - name: Run unit tests
-      run: python3 -m unittest
-    
+      run: |
+        python3 -m pip install discord.py
+        python3 -m pip install requests
+        python3 -m unittest
+
     - name: Run flake8
-      run: flake8 --ignore=E501
-       
+      run: |
+        python3 -m pip install flake8
+        flake8 --ignore=E501
