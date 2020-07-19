@@ -1,11 +1,9 @@
-"""Parses Discord information and delegates function calls"""
-
-from typing import List
-import os
 from commands import ALL_COMMANDS
-import discord
 from log import logger
+from typing import List
+import discord
 import inspect
+import os
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 COMMAND_PREFIXES = ["!", "$", "`"]

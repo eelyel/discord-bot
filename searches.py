@@ -1,10 +1,9 @@
-"""Contains core search functionality"""
-from typing import List
-import os
-import requests
-import discord
 from log import logger
 from random import randint
+from typing import List
+import discord
+import os
+import requests
 
 MAL = 'mal'
 MD = 'md'
