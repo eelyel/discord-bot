@@ -24,9 +24,3 @@ The requests library is used for API calls:
 ```
 python3 -m pip install -U requests
 ```
-
-AWS Lambda is used, which relies on a system call to the [AWS CLI](https://aws.amazon.com/cli/):
-
-```
-python3 -m pip install -U awscli
-```
