@@ -7,27 +7,14 @@ import requests
 
 NO_RESULTS_FOUND_MESSAGE = "No results found"
 
-MAL = 'mal'
-MD = 'md'
-MU = 'mu'
-NU = 'nu'
-SCP = 'scp'
-STEAM = 'steam'
-WIKI = 'wiki'
-XKCD = 'xkcd'
-
-GOOGLE_SEARCH_API_KEY = os.environ['GOOGLE_SEARCH_API_KEY']
-
-GOOGLE_SEARCH_ENGINE_IDS = {
-    MAL: os.environ['GOOGLE_SEARCH_ENGINE_ID_MAL'],
-    MD: os.environ['GOOGLE_SEARCH_ENGINE_ID_MD'],
-    MU: os.environ['GOOGLE_SEARCH_ENGINE_ID_MU'],
-    NU: os.environ['GOOGLE_SEARCH_ENGINE_ID_NU'],
-    SCP: os.environ['GOOGLE_SEARCH_ENGINE_ID_SCP'],
-    STEAM: os.environ['GOOGLE_SEARCH_ENGINE_ID_STEAM'],
-    WIKI: os.environ['GOOGLE_SEARCH_ENGINE_ID_WIKI'],
-    XKCD: os.environ['GOOGLE_SEARCH_ENGINE_ID_XKCD'],
-}
+MAL = 'MAL'
+MD = 'MD'
+MU = 'MU'
+NU = 'NU'
+SCP = 'SCP'
+STEAM = 'STEAM'
+WIKI = 'WIKI'
+XKCD = 'XKCD'
 
 
 def google_search(search_query: str, num_results: int, search_type: str) -> List[str]:
@@ -37,13 +24,15 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
     List elements will be dictionaries with keys as below in the 'items' section:
     https://developers.google.com/custom-search/v1/cse/list#response
     """
+    GOOGLE_SEARCH_API_KEY = os.environ['GOOGLE_SEARCH_API_KEY']
+
     res = requests.get(
         "https://www.googleapis.com/customsearch/v1",
         params={
             'key': GOOGLE_SEARCH_API_KEY,
             'q': search_query,
             'num': num_results,
-            'cx': GOOGLE_SEARCH_ENGINE_IDS[search_type],
+            'cx': os.environ[f"GOOGLE_SEARCH_ENGINE_ID_{search_type}"],
         }
     ).json()
 
