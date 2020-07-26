@@ -20,7 +20,7 @@ class TestSearches(unittest.TestCase):
             }
         }
 
-        output = searches.google_search(None, None, None)
+        output = searches.google_search(None, None, "")
 
         self.assertEqual(expected_return, output)
 
@@ -29,7 +29,7 @@ class TestSearches(unittest.TestCase):
     def test_google_search_will_return_empty_list_when_error_occurs(self, mock_requests, _):
         mock_requests.get().json.return_value = {'error': None}
 
-        output = searches.google_search(None, None, None)
+        output = searches.google_search(None, None, "")
 
         self.assertFalse(output)
 

@@ -7,14 +7,14 @@ import requests
 
 NO_RESULTS_FOUND_MESSAGE = "No results found"
 
-MAL = 'MAL'
-MD = 'MD'
-MU = 'MU'
-NU = 'NU'
-SCP = 'SCP'
-STEAM = 'STEAM'
-WIKI = 'WIKI'
-XKCD = 'XKCD'
+MAL = 'mal'
+MD = 'md'
+MU = 'mu'
+NU = 'nu'
+SCP = 'scp'
+STEAM = 'steam'
+WIKI = 'wiki'
+XKCD = 'xkcd'
 
 
 def google_search(search_query: str, num_results: int, search_type: str) -> List[str]:
@@ -32,7 +32,7 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
             'key': GOOGLE_SEARCH_API_KEY,
             'q': search_query,
             'num': num_results,
-            'cx': os.environ[f"GOOGLE_SEARCH_ENGINE_ID_{search_type}"],
+            'cx': os.environ[f"GOOGLE_SEARCH_ENGINE_ID_{search_type.upper()}"],
         }
     ).json()
 
