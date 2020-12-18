@@ -1,6 +1,6 @@
 from discord.ext import commands
 from log import logger
-from random import randint
+from random import randint, randrange, choice
 import discord
 import os
 import searches
@@ -64,12 +64,12 @@ async def perm(ctx, *args):
     """
     Return a permutated sequence of the given number, or of the given input
     """
-    inputs = list(*args)
+    inputs = list(args)
     logger.info("Going to permutate %s", inputs)
 
     if len(inputs) == 1:
         try:
-            inputs = [i for i in range(1, len(inputs[0]) + 1)]
+            inputs = [i for i in range(1, int(inputs[0]) + 1)]
         except ValueError:
             pass
 
@@ -77,7 +77,7 @@ async def perm(ctx, *args):
     rand_inputs = []
 
     while inputs:
-        rand_pos = randint(0, len(inputs) - 1)
+        rand_pos = randrange(len(inputs))
         rand_inputs.append(inputs[rand_pos])
         del inputs[rand_pos]
 
@@ -98,12 +98,12 @@ async def roll(ctx, *args):
     # >>> roll(['2d20'])
     # '(15) + (3) = 18'
     """
-    inputs = list(*args)
+    inputs = list(args)
     logger.info("Rolling - inputs: %s", inputs)
 
     if len(inputs) > 1:
         # !roll Alice Bob Charlie - random string list rolling
-        await ctx.send(inputs[randint(0, len(inputs) - 1)])
+        await ctx.send(choice(inputs))
         return
 
     inp = inputs[0]
@@ -145,13 +145,12 @@ async def roll(ctx, *args):
 
 @bot.command()
 async def flip(ctx, *args):
-    inputs = list(*args)
-    logger.info("Flipping %s", inputs)
-    if len(inputs) == 2:
-        await ctx.send(inputs[randint(0, 1)])
+    logger.info("Flipping %s", args)
+    if len(args) == 2:
+        await ctx.send(choice(args))
         return
 
-    await ctx.send(COIN[randint(0, 1)])
+    await ctx.send(choice(COIN))
 
 
 # dynamically create commands for search sites
