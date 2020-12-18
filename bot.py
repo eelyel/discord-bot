@@ -1,4 +1,4 @@
-from commands import show_help, roll
+from commands import show_help, roll, perm, flip
 from functools import partial
 from log import logger
 from searches import search
@@ -14,6 +14,8 @@ ALL_COMMANDS = {
     'help': lambda *_: show_help(),
     'kill': None,
     'roll': lambda _, inputs, cid: roll(inputs),
+    'perm': lambda _, inputs, cid: perm(inputs),
+    'flip': lambda _, inputs, cid: flip(inputs),
     searches.MAL: partial(search, searches.MAL),
     searches.MD: partial(search, searches.MD),
     searches.MU: partial(search, searches.MU),

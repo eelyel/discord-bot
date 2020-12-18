@@ -3,6 +3,7 @@ from random import randint
 from typing import List
 import discord
 
+COIN = ['HEADS', 'TAILS']
 
 HELP_MESSAGE = """
     Precede the following with any of `, !, $
@@ -17,6 +18,32 @@ HELP_MESSAGE = """
 
 def show_help() -> discord.Embed:
     return discord.Embed(description=HELP_MESSAGE)
+
+
+def perm(inputs: List[str]) -> str:
+    """
+    Return a permutated sequence of the given number, or of the given input
+    """
+    logger.info("Going to permutate %s", inputs)
+
+    if not inputs:
+        return ''
+
+    if len(inputs) == 1:
+        try:
+            inputs = [i for i in range(1, len(inputs[0]) + 1)]
+        except ValueError:
+            pass
+
+    logger.info("Permutating %s", inputs)
+    rand_inputs = []
+
+    while inputs:
+        rand_pos = randint(0, len(inputs) - 1)
+        rand_inputs.append(inputs[rand_pos])
+        del inputs[rand_pos]
+
+    return rand_inputs
 
 
 def roll(inputs: List[str]) -> str:
@@ -79,3 +106,11 @@ def roll(inputs: List[str]) -> str:
         num -= 1
     total_str = total_str[:-2] + '= ' + str(total)
     return total_str
+
+
+def flip(inputs):
+    logger.info("Flipping %s", inputs)
+    if len(inputs) == 2:
+        return inputs[randint(0, 1)]
+
+    return COIN[randint(0, 1)]
