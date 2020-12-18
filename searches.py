@@ -1,11 +1,11 @@
 from log import logger
-from random import randint
 from typing import List
 import discord
 import os
 import requests
 
 NO_RESULTS_FOUND_MESSAGE = "No results found"
+
 
 MAL = 'mal'
 MD = 'md'
@@ -16,6 +16,7 @@ STEAM = 'steam'
 WIKI = 'wiki'
 XKCD = 'xkcd'
 
+ALL_SITES = [MAL, MD, MU, NU, SCP, STEAM, WIKI, XKCD]
 
 def google_search(search_query: str, num_results: int, search_type: str) -> List[str]:
     """
@@ -25,6 +26,8 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
     https://developers.google.com/custom-search/v1/cse/list#response
     """
     GOOGLE_SEARCH_API_KEY = os.environ['GOOGLE_SEARCH_API_KEY']
+    logger.info("Received query: %s | num results: %s | search type: %s", search_query, num_results, search_type)
+    logger.info(f"{type(search_type)}")
 
     res = requests.get(
         "https://www.googleapis.com/customsearch/v1",
@@ -43,39 +46,22 @@ def google_search(search_query: str, num_results: int, search_type: str) -> List
     return res['items']
 
 
-def search(search_type: str, args: List[str], inputs: List[str], channel_id: int) -> discord.Embed:
+def search(search_type: str, inputs: List[str]) -> discord.Embed:
     """
     Return a formatted string from the given query in inputs and the search type.
     """
-    logger.info("Searching - args: %s | inputs: %s | type: %s", args, inputs, search_type)
+    logger.info("Searching - inputs: %s | type: %s", inputs, search_type)
 
     # default to one to prevent the bot's messages from taking too much space in chat
     # also notes if the result is fixed; by default it is not
     num_results = 1
 
-    # Look for any numerical argument passed in; arbitrarily choose one
-    # it will represent the number of search results to return (it will never be > 10)
-    # look also for 'r': this represents a random number between 1-5000 - specifically for SCP
-    for arg in args:
-        if arg.isdigit():
-            # capped results at 5 to prevent more than 2000 chars being sent at once (400 exception)
-            num_results = min(int(arg), 5)
-            logger.info("Changing number of search results to %i", num_results)
-        if 'r' in arg:
-            # allow results to be 3
-            num_results = 3
-            scp_num = str(randint(1, 5000))
-            inputs.append(scp_num)
-            logger.info("Appended %s to inputs: %s", scp_num, inputs)
-            break
-
-    inputs = ' '.join(inputs)
-    logger.info("post-process - args: %s | inputs: %s | type: %s", args, inputs, search_type)
+    logger.info("post-process - inputs: %s | type: %s", inputs, search_type)
 
     results = google_search(inputs, num_results, search_type)
 
     if not results:
-        return NO_RESULTS_FOUND_MESSAGE
+        return discord.Embed(title=NO_RESULTS_FOUND_MESSAGE)
 
     displayed_result = ''
 

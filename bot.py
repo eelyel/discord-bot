@@ -1,68 +1,38 @@
-from commands import show_help, roll, perm, flip
-from functools import partial
+from discord.ext import commands
 from log import logger
-from searches import search
-from typing import List, Set
+from random import randint
 import discord
-import inspect
 import os
 import searches
 
+
+bot = commands.Bot(command_prefix=["!", "`"])
 BOT_TOKEN = os.environ['BOT_TOKEN']
-COMMAND_PREFIXES = ["!", "$", "`"]
-ALL_COMMANDS = {
-    'help': lambda *_: show_help(),
-    'kill': None,
-    'roll': lambda _, inputs, cid: roll(inputs),
-    'perm': lambda _, inputs, cid: perm(inputs),
-    'flip': lambda _, inputs, cid: flip(inputs),
-    searches.MAL: partial(search, searches.MAL),
-    searches.MD: partial(search, searches.MD),
-    searches.MU: partial(search, searches.MU),
-    searches.NU: partial(search, searches.NU),
-    searches.SCP: partial(search, searches.SCP),
-    searches.STEAM: partial(search, searches.STEAM),
-    searches.WIKI: partial(search, searches.WIKI),
-    searches.XKCD: partial(search, searches.XKCD),
-}
+
+COIN = ['HEADS', 'TAILS']
+SEARCH_FUNCTION_TEMPLATE = """
+@bot.command()
+async def {0}(ctx, *args):
+    await ctx.send(embed=searches.search('{0}', *args))
+"""
+
+HELP_MESSAGE = """
+    Precede the following with any of `, !, $
+    **Misc**
+    help
+    roll <Number|NdM|abc>
+
+    **Searches**
+    <mal|md|mu|nu|scp|wiki|xkcd>[#][^][#] <search query>
+    """
 
 
-client = discord.Client()
-
-
-@client.event
+@bot.listen()
 async def on_ready():
-    logger.info("Logged in as: %s (%s)", client.user.name, client.user.id)
+    logger.info("Logged in as: %s (%s)", bot.user.name, bot.user.id)
 
 
-@client.event
-async def on_message(message):
-    content = ' '.join(message.content.split())
-    channel = message.channel
-
-    command, args, inputs = parse_command(content)
-    if command is None:
-        return
-
-    # kill switch that hangs the bot
-    if command == 'kill':
-        logger.warning("Killing bot")
-        while 1:
-            pass
-
-    fnc = ALL_COMMANDS[command]
-    if inspect.isawaitable(fnc):
-        msg = await fnc(args, inputs, message.channel.id)
-    else:
-        msg = fnc(args, inputs, message.channel.id)
-
-    if isinstance(msg, discord.Embed):
-        await channel.send(embed=msg)
-    elif msg:
-        await channel.send(msg)
-
-
-@client.event
+@bot.listen()
 async def on_reaction_add(reaction, user):
     """
     Will not be called if the message isn't cached:
@@ -79,35 +49,114 @@ async def on_reaction_add(reaction, user):
             logger.warning("Failed to delete message %s", message_info)
 
 
-def parse_command(content: str) -> (str, Set[str], List[str]):
+async def show_help() -> discord.Embed:
+    return discord.Embed(description=HELP_MESSAGE)
+
+
+@bot.command()
+async def kill(_, __):
+    while 1:
+        pass
+
+
+@bot.command()
+async def perm(ctx, *args):
     """
-    Return a message content's command, arguments, and inputs.
-
-    >>> parse_command("!wiki")
-    ('wiki', [], [])
-
-    >>> parse_command("`wiki12nil hello and bye")
-    ('wiki', {'1', '2', 'n', 'i', 'l'}, ['hello', 'and', 'bye'])
+    Return a permutated sequence of the given number, or of the given input
     """
-    if not content or content[0] not in COMMAND_PREFIXES:
-        return None, None, None
+    inputs = list(*args)
+    logger.info("Going to permutate %s", inputs)
 
-    split_content = content.split()
+    if len(inputs) == 1:
+        try:
+            inputs = [i for i in range(1, len(inputs[0]) + 1)]
+        except ValueError:
+            pass
 
-    # !wiki5abc oranges -> wiki5abc
-    unparsed_command = split_content[0][1:]
+    logger.info("Permutating %s", inputs)
+    rand_inputs = []
 
-    commands = list(filter(unparsed_command.startswith, ALL_COMMANDS.keys()))
+    while inputs:
+        rand_pos = randint(0, len(inputs) - 1)
+        rand_inputs.append(inputs[rand_pos])
+        del inputs[rand_pos]
 
-    if not commands:
-        return None, None, None
-
-    # Take the first command regardless of multiple matches
-    command = commands[0]
-
-    args = list(unparsed_command[len(command):])
-
-    return command, args, split_content[1:]
+    await ctx.send(rand_inputs)
 
 
-client.run(BOT_TOKEN)
+@bot.command()
+async def roll(ctx, *args):
+    """
+    Return a randomized number or selection, based on the format of input.
+
+    # >>> roll(['Alice', 'Bob', 'Charlie'])
+    # 'Bob'
+
+    # >>> roll(['6'])
+    # '3'
+
+    # >>> roll(['2d20'])
+    # '(15) + (3) = 18'
+    """
+    inputs = list(*args)
+    logger.info("Rolling - inputs: %s", inputs)
+
+    if len(inputs) > 1:
+        # !roll Alice Bob Charlie - random string list rolling
+        await ctx.send(inputs[randint(0, len(inputs) - 1)])
+        return
+
+    inp = inputs[0]
+    # !roll 10 - standard n-sided roll
+    if inp.isdigit() and int(inp) > 0:
+        await ctx.send(randint(1, int(inp)))
+        return
+
+    try:
+        # Fails when there is no 'd': !roll abc
+        (num, side) = inp.split('d')[:2]
+        # Both fail on strings: !roll 1dc
+        num = int(num)
+        side = int(side)
+        if num <= 0:
+            logger.info("num is nonpositive: %s", num)
+            raise ValueError("num must be positive!")
+        if side <= 0:
+            logger.info("side is nonpositive: %s", side)
+            raise ValueError("side must be positive!")
+    except ValueError:
+        # !roll abc or !roll 1dc
+        logger.info("Rolling 1 input dice %s", inp)
+        await ctx.send(inp)
+        return
+
+    logger.info("Rolling dnd dice with num %s and side %s", num, side)
+    # !roll 2d20 - DnD style rolling
+    total = 0
+    total_str = ''
+    while num > 0:
+        ran = randint(1, side)
+        total += ran
+        total_str += f"({ran}) + "
+        num -= 1
+    total_str = total_str[:-2] + '= ' + str(total)
+    await ctx.send(total_str)
+
+
+@bot.command()
+async def flip(ctx, *args):
+    inputs = list(*args)
+    logger.info("Flipping %s", inputs)
+    if len(inputs) == 2:
+        await ctx.send(inputs[randint(0, 1)])
+        return
+
+    await ctx.send(COIN[randint(0, 1)])
+
+
+# dynamically create commands for search sites
+for site in searches.ALL_SITES:
+    logger.info("Creating functions: %s", site)
+    exec(SEARCH_FUNCTION_TEMPLATE.format(site))
+
+bot.run(BOT_TOKEN)

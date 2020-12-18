@@ -21,4 +21,4 @@ handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-sys.excepthook = lambda exception_class, exception_instance, traceback: logger.exception(f"Uncaught exception: {exception_class}, {exception_class}: {traceback}")
+sys.excepthook = lambda exception_class, exception_instance, traceback: logger.exception(f"Uncaught exception: {exception_class}, {exception_instance}: {str(traceback)}")
