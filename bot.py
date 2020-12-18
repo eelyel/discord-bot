@@ -70,7 +70,7 @@ async def perm(ctx, *args):
     if len(inputs) == 1:
         try:
             inputs = [i for i in range(1, int(inputs[0]) + 1)]
-        except ValueError:
+        except (TypeError, ValueError):
             pass
 
     logger.info("Permutating %s", inputs)
@@ -82,6 +82,18 @@ async def perm(ctx, *args):
         del inputs[rand_pos]
 
     await ctx.send(rand_inputs)
+
+
+@bot.command()
+async def permvc(ctx, *args):
+    sender = ctx.message.author
+    vcs = ctx.guild.voice_channels
+    for vc in vcs:
+        if sender in vc.members:
+            await perm(ctx, *[member.nick for member in vc.members])
+            break
+    else:
+        await ctx.send("Not in voicechat")
 
 
 @bot.command()
